@@ -271,12 +271,37 @@ Total: ~53KB of documentation
 
 ---
 
-## Version
+## Integration with Literature Workflow
+
+This skill integrates with the complete literature analysis pipeline:
+
+```
+pseudoctor-lit-search → pseudoctor-literature-mapper → pseudoctor-paper-reader → pseudoctor-paper-criticalreviewer
+(Find & Screen)         (Organize & Map)                (Understand)             (Evaluate & Critique)
+```
+
+**Use this skill** when you need to:
+- Evaluate the innovation delta of core papers
+- Assess applicability to your specific problem
+- Compare multiple approaches
+- Prepare for peer review or paper evaluation
+
+## Companion Skills
+
+| Skill | Purpose | When to Use |
+|-------|---------|-------------|
+| **pseudoctor-lit-search** | Literature search and screening | Start of workflow |
+| **pseudoctor-literature-mapper** | Domain mapping and faction analysis | After screening |
+| **pseudoctor-paper-reader** | Faithful paper extraction | Before critical review |
+| **pseudoctor-paper-criticalreviewer** | Critical analysis and innovation assessment | Current skill |
+
+## Version & Status
 
 - **Created**: 2026-01-11
+- **Last Updated**: 2026-01-13
 - **Version**: 1.0.0
-- **Companion Skills**: pseudoctor-paper-reader
-- **Status**: Production ready ✅
+- **Companion Skills**: pseudoctor-paper-reader, pseudoctor-lit-search, pseudoctor-literature-mapper
+- **Status**: Production Ready ✅
 
 ---
 
@@ -284,10 +309,13 @@ Total: ~53KB of documentation
 
 Created as companion to **pseudoctor-paper-reader**.
 
-Inspired by the "深层学术解析员" prompt philosophy:
+**Special Thanks**: This skill is inspired by and builds upon the "论文X光机" (Paper X-Ray) prompt by **李继刚 (@lijigang)**. The original prompt philosophy emphasizes:
 - 去噪 (denoise) → 提取 (extract) → 批判 (critique)
 - High-density output, no filler
 - Structural thinking over superficial summarization
+- Revealing core mechanisms and hidden assumptions
+
+The "论文X光机" prompt has been adapted and extended to integrate with the pseudoctor literature analysis workflow, adding evidence binding, bilingual support, and companion skill integration.
 
 ---
 
