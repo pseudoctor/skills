@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>业务数据分析报告</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <style>
+    :root {
+      --color-primary: #1a237e;
+      --color-primary-light: #3949ab;
+      --color-text-primary: #2c3e50;
+      --color-text-secondary: #455a64;
+      --color-text-tertiary: #78909c;
+      --color-text-disabled: #90a4ae;
+      --color-success: #2e7d32;
+      --color-error: #c62828;
+      --color-warning: #e65100;
+      --color-info: #1565c0;
+      --color-bg-page: #f5f7fa;
+      --color-bg-container: #ffffff;
+      --color-bg-section: #fafbfc;
+      --color-bg-hover: #f8f9fa;
+      --chart-color-1: #1a237e;
+      --chart-color-2: #2196f3;
+      --chart-color-3: #4caf50;
+      --chart-color-4: #ff9800;
+      --chart-color-5: #9c27b0;
+      --chart-color-6: #e0e0e0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--color-bg-page);
+      color: var(--color-text-primary);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 1800px;
+      margin: 20px auto;
+      background-color: var(--color-bg-container);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.07);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .content-wrapper { padding: 40px 60px; }
+
+    @media (max-width: 768px) {
+      .content-wrapper { padding: 20px 25px; }
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.8rem; }
+      h3 { font-size: 1.4rem; }
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--color-primary);
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    h1 { font-size: 2.8rem; }
+    h2 {
+      font-size: 2.2rem;
+      border-bottom: 4px solid var(--color-primary);
+      padding-bottom: 15px;
+      margin-top: 60px;
+    }
+    h3 {
+      font-size: 1.7rem;
+      color: var(--color-primary-light);
+      margin-top: 40px;
+      border-left: 5px solid #2196f3;
+      padding-left: 15px;
+    }
+    h4 {
+      font-size: 1.3rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    p, li {
+      font-size: 1.05rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 18px;
+      max-width: 900px;
+    }
+
+    ul, ol { padding-left: 30px; }
+
+    .header {
+      padding: 50px 60px;
+      background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+      color: #ffffff;
+    }
+    .header h1 { color: #ffffff; border: none; }
+    .header p { color: #ffffff; opacity: 0.9; margin-bottom: 8px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .kpi-card .title { color: var(--color-text-tertiary); font-size: 0.95rem; margin-bottom: 8px; }
+    .kpi-card .value { color: var(--color-primary); font-size: 2rem; font-weight: 700; }
+    .kpi-card .context { color: var(--color-text-secondary); font-size: 0.95rem; }
+
+    .change { font-weight: 700; margin-left: 6px; }
+    .positive { color: var(--color-success); }
+    .negative { color: var(--color-error); }
+
+    .chart-container {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      margin-top: 16px;
+      min-height: 360px;
+    }
+
+    .chart-container canvas {
+      width: 100% !important;
+      height: 320px !important;
+      display: block;
+    }
+    .chart-container.tall { min-height: 440px; }
+    .chart-container.tall canvas { height: 400px !important; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .grid-col-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .table-wrapper {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      padding: 15px;
+      margin-top: 15px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      color: #ffffff;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.98rem;
+    }
+
+    tbody tr:nth-child(even) { background: var(--color-bg-section); }
+    tbody tr:hover { background: var(--color-bg-hover); }
+
+    .data-source {
+      font-size: 0.9rem;
+      color: var(--color-text-disabled);
+      font-style: italic;
+      margin-top: 10px;
+    }
+
+    .analysis-block {
+      background: #ffffff;
+      border-left: 6px solid var(--color-primary);
+      padding: 16px 18px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-top: 16px;
+    }
+
+    .insight-list { margin-top: 10px; }
+    .insight-item { margin-bottom: 12px; }
+    .fact { font-weight: 700; color: var(--color-primary); }
+    .implication { color: var(--color-info); font-style: italic; }
+
+    .back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    @media print {
+      .back-to-top { display: none; }
+      body { background: #ffffff; }
+      .container { box-shadow: none; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>__TITLE__</h1>
+      <p>数据周期：__DATE_RANGE__</p>
+      <p>报告生成日期：__GEN_DATE__</p>
+      <p>数据来源：__DATA_SOURCE__</p>
+    </header>
+
+    <div class="content-wrapper">
+      <section class="executive-summary">
+        <h2>执行摘要</h2>
+        __KPI_GRID__
+        <div class="table-wrapper">
+          __BRAND_SUMMARY_LINE__
+        </div>
+        <div class="analysis-block">
+          __EXEC_SUMMARY_FACTS__
+        </div>
+      </section>
+
+      <section class="data-overview">
+        <h2>数据概览</h2>
+        <div class="kpi-grid">
+          __OVERVIEW_CARDS__
+        </div>
+        <div class="table-wrapper">
+          __MONTHLY_TABLE__
+        </div>
+        <div class="table-wrapper">
+          __DATA_QUALITY_TABLE__
+        </div>
+      </section>
+
+      <section class="multi-dimension-analysis">
+        <h2>一、时间序列分析</h2>
+        <h3>__LFL_TITLE__</h3>
+        <p>__LFL_SUMMARY__</p>
+        <div class="chart-container">
+          <canvas id="monthlySalesChart"></canvas>
+        </div>
+        <p class="data-source">数据来源: __LFL_SOURCE__</p>
+        <div class="chart-container tall">
+          <h4>日销售金额趋势</h4>
+          <canvas id="dailySalesChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h4>品牌月度销售金额结构（堆叠）</h4>
+          <canvas id="monthlyBrandStackedChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h4>销售数量月度趋势（替代增长率分析）</h4>
+          <canvas id="monthlyQtyChart"></canvas>
+        </div>
+
+        <h2>二、品牌结构与产品维度分析</h2>
+        <h3>品牌销售明细（迄今 vs 当月）</h3>
+        <div class="table-wrapper">
+          __BRAND_DETAIL_TABLE__
+        </div>
+        <h3>品牌占比（销售金额）</h3>
+        <div class="grid-col-2">
+          <div class="chart-container">
+            <h4>__P1_LABEL__ 结构占比</h4>
+            <canvas id="shareP1Chart"></canvas>
+          </div>
+          <div class="chart-container">
+            <h4>__P2_LABEL__ 结构占比</h4>
+            <canvas id="shareP2Chart"></canvas>
+          </div>
+        </div>
+        <h3>品牌销售数量分析（柱状图）</h3>
+        <div class="chart-container">
+          <canvas id="brandQtyBarChart"></canvas>
+        </div>
+        <h3>品牌表现</h3>
+        <div class="table-wrapper">
+          __BRAND_PERFORMANCE_TABLE__
+        </div>
+        <h3>品牌月度占比变化</h3>
+        <div class="chart-container">
+          <canvas id="brandShareTrendChart"></canvas>
+        </div>
+        <h3>Top 20 产品销售金额</h3>
+        <div class="chart-container">
+          <canvas id="topProduct20Chart"></canvas>
+        </div>
+        <div class="table-wrapper">
+          <details>
+            <summary>Top30 产品排名变化</summary>
+            __SKU_RANK_CHANGE_TABLE__
+          </details>
+        </div>
+        <h3>产品销售月度变化</h3>
+        <div class="chart-container">
+          <canvas id="productMonthlyTrendChart"></canvas>
+        </div>
+        <h3>热销产品稳定性</h3>
+        <div class="table-wrapper">
+          __PRODUCT_STABILITY_TABLE__
+        </div>
+        <p class="data-source">数据来源: __STRUCT_SOURCE__</p>
+
+        <h2>三、门店维度分析</h2>
+        <p>__STORE_SUMMARY__</p>
+        <div class="grid-col-2">
+          <div class="chart-container top10-chart">
+            <h4>__P1_LABEL__ Top 10 门店</h4>
+            <canvas id="topStoreP1Chart"></canvas>
+          </div>
+          <div class="chart-container top10-chart">
+            <h4>__P2_LABEL__ Top 10 门店</h4>
+            <canvas id="topStoreP2Chart"></canvas>
+          </div>
+        </div>
+        <h3>Top 20 门店销售金额</h3>
+        <div class="chart-container">
+          <canvas id="topStore20Chart"></canvas>
+        </div>
+        <div class="table-wrapper">
+          <details>
+            <summary>Top10 门店表现</summary>
+            __STORE_TOP10_TABLE__
+          </details>
+        </div>
+        <div class="table-wrapper">
+          <details>
+            <summary>门店排名变化（Top30）</summary>
+            __STORE_RANK_CHANGE_TABLE__
+          </details>
+        </div>
+        <h3>Top20 门店稳定性</h3>
+        <div class="table-wrapper">
+          __STORE_STABILITY_TABLE__
+        </div>
+        <h3>Top5 门店效率雷达图</h3>
+        <div class="chart-container">
+          <canvas id="storeEfficiencyRadar"></canvas>
+        </div>
+
+        <h2>四、SKU 维度分析</h2>
+        <p>__SKU_SUMMARY__</p>
+        <div class="grid-col-2">
+          <div class="chart-container top10-chart">
+            <h4>__P1_LABEL__ Top 10 SKU</h4>
+            <canvas id="topSkuP1Chart"></canvas>
+          </div>
+          <div class="chart-container top10-chart">
+            <h4>__P2_LABEL__ Top 10 SKU</h4>
+            <canvas id="topSkuP2Chart"></canvas>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <details>
+            <summary>SKU Top10 明细</summary>
+            __SKU_TOP_TABLE__
+          </details>
+        </div>
+
+        <h2>五、交叉分析</h2>
+        <h3>品牌×门店 Top10 组合</h3>
+        <div class="table-wrapper">
+          __CROSS_TOP10_TABLE__
+        </div>
+        <h3>高效门店特征（TOP5均值 vs 全店均值）</h3>
+        <div class="table-wrapper">
+          __CROSS_FEATURE_TABLE__
+        </div>
+
+        <h2>六、结构与集中度分析</h2>
+        <div class="table-wrapper">
+          __CONCENTRATION_TABLE__
+        </div>
+        <p class="data-source">数据来源: __CROSS_SOURCE__</p>
+      </section>
+
+      <section class="section" id="insights">
+        <h2>七、洞察（FACT → WHY → SO WHAT）</h2>
+        <div class="analysis-block">
+          <div class="insight-list">
+            __FACT_LIST__
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="inventory-risk">
+        <h2>八、库存风险分析</h2>
+        <div class="table-wrapper">
+          __INVENTORY_OVERVIEW_TABLE__
+        </div>
+        <div class="table-wrapper">
+          __INVENTORY_RISK_TABLE__
+        </div>
+      </section>
+
+      <section class="appendix">
+        <h2>九、附录：数据来源与质量</h2>
+        __APPENDIX__
+      </section>
+    </div>
+  </div>
+
+  <button class="back-to-top" id="backToTop">返回顶部</button>
+
+  <script>
+    const chartColors = {
+      c1: '#1a237e',
+      c2: '#2196f3',
+      c3: '#4caf50',
+      c4: '#ff9800',
+      c5: '#9c27b0',
+      c6: '#e0e0e0'
+    };
+
+    const baseOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' }, tooltip: { enabled: true } },
+      animation: { duration: 600 }
+    };
+
+    const percentLabelPlugin = {
+      id: 'percentLabelPlugin',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          if (!meta || !meta.data) return;
+          const total = dataset.data.reduce((a, b) => a + b, 0);
+          meta.data.forEach((element, index) => {
+            const value = dataset.data[index];
+            if (!total || !value) return;
+            const percent = (value / total) * 100;
+            const pos = element.tooltipPosition();
+            ctx.fillStyle = '#455a64';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${percent.toFixed(1)}%`, pos.x, pos.y);
+          });
+        });
+      }
+    };
+
+    __CHART_SCRIPT__
+
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

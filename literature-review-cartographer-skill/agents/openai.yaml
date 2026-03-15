@@ -1,0 +1,7 @@
+interface:
+  display_name: "多论文综述与学术地图"
+  short_description: "为给定论文集合生成学术地图、冲突矩阵、概念谱系与结构化综述，支持中英文混合论文"
+  default_prompt: "Please use literature-review-cartographer. Start by auditing the paper corpus, extract abstracts, introductions, and conclusions where available, and then synthesize the papers across assumptions, conflicts, concepts, methods, gaps, and consensus. Support Chinese papers, English papers, and mixed Chinese-English paper sets without splitting them by language. Work only from the materials I provide and explicitly mark any unsupported inference."
+
+policy:
+  allow_implicit_invocation: true

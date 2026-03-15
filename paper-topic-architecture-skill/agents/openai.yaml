@@ -1,0 +1,7 @@
+interface:
+  display_name: "论文选题与大纲优化"
+  short_description: "为中文社科论文提供拟题、框架诊断与大纲优化"
+  default_prompt: "Use $paper-topic-architecture-master to refine my social science paper topic, compare outline options, and improve the literature review and final structure."
+
+policy:
+  allow_implicit_invocation: true
